@@ -6,7 +6,8 @@ A single-page, offline-friendly study planner for FMGE preparation. It runs enti
 
 ## Features
 
-- **Dashboard** — days/subjects/GT completion, MCQ total and accuracy, exam countdown, daily MCQ target.
+- **Dashboard** — today's focus and exam countdown, plan pace, MCQ target vs. actual with accuracy, next GT, open mistakes, separate subject/day/GT progress bars, 75-day activity heatmap, weakest subjects, and one-click log/focus/wrong-question actions.
+- **Plan settings** — collapsible setup for start date, exam date, daily MCQ target and score target.
 - **19 subjects** — one main revision platform, reference book, covered/pending notes, completion checklist.
 - **75-day plan** — phase overview plus a day-by-day tracker with calendar dates.
 - **Grand Tests** — 8 GT slots, score and analysis tracking, subject-wise percentages with automatic OK / Watch / +1 revision flags.
