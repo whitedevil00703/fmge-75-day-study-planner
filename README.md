@@ -1,5 +1,7 @@
 # FMGE 75-Day Study Planner
 
+**Live site:** https://fmge-75-day-study-planner.vercel.app
+
 A single-page, offline-friendly study planner for FMGE preparation. It runs entirely in the browser and stores progress in `localStorage` — no account, backend, or tracking.
 
 ## Features
