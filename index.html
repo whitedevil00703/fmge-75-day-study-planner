@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#087f83">
+<meta name="description" content="Offline-friendly 75-day FMGE study planner with subject tracking, grand tests, wrong-question notebook and a focus timer.">
+<title>FMGE 75-Day Study Planner</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <div class="hero">
+      <div class="brand">YOUR PERSONAL EXAM COMMAND CENTRE</div>
+      <h1>FMGE 75-Day Study Planner</h1>
+      <p>One subject · One source · Daily MCQs · 8 Grand Tests · Focused revision</p>
+    </div>
+    <div class="head-actions">
+      <button class="light" id="printBtn" type="button">Print planner</button>
+      <button class="light" id="exportBtn" type="button">Export backup</button>
+      <button class="light" id="importBtn" type="button">Import backup</button>
+      <input id="importFile" type="file" accept="application/json,.json" hidden>
+    </div>
+  </div>
+</header>
+
+<main>
+  <nav class="tabs" role="tablist" aria-label="Planner sections">
+    <button class="tab active" id="tab-dashboard" role="tab" aria-selected="true" aria-controls="dashboard" data-tab="dashboard" type="button">Dashboard</button>
+    <button class="tab" id="tab-subjects" role="tab" aria-selected="false" aria-controls="subjects" data-tab="subjects" type="button">19 Subjects</button>
+    <button class="tab" id="tab-schedule" role="tab" aria-selected="false" aria-controls="schedule" data-tab="schedule" type="button">75-Day Plan</button>
+    <button class="tab" id="tab-tests" role="tab" aria-selected="false" aria-controls="tests" data-tab="tests" type="button">Grand Tests</button>
+    <button class="tab" id="tab-mistakes" role="tab" aria-selected="false" aria-controls="mistakes" data-tab="mistakes" type="button">Wrong Questions</button>
+    <button class="tab" id="tab-daily" role="tab" aria-selected="false" aria-controls="daily" data-tab="daily" type="button">Daily Log &amp; Focus</button>
+  </nav>
+
+  <section id="dashboard" class="panel active" role="tabpanel" aria-labelledby="tab-dashboard">
+    <div class="grid stats">
+      <div class="card">
+        <div class="stat-label">Days completed</div>
+        <div class="stat-value" id="daysDone">0/75</div>
+        <div class="stat-sub" id="dayNow">Set your start date below</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Subjects completed</div>
+        <div class="stat-value" id="subjectsDone">0/19</div>
+        <div class="stat-sub">Based on subject checklist</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">MCQs solved</div>
+        <div class="stat-value" id="mcqTotal">0</div>
+        <div class="stat-sub" id="mcqSub">Total recorded in daily log</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Grand Tests</div>
+        <div class="stat-value" id="gtDone">0/8</div>
+        <div class="stat-sub">Record score and analysis</div>
+      </div>
+    </div>
+
+    <div class="banner" id="countdownBanner" role="status">Add your exam date in Exam setup to see the countdown.</div>
+
+    <div class="grid two">
+      <div class="card">
+        <div class="section-title">
+          <div><h2>Overall progress</h2><p>Your 75-day preparation snapshot</p></div>
+          <span class="pill" id="overallPct">0%</span>
+        </div>
+        <div class="progress" id="overallProgress" role="progressbar" aria-label="Overall plan progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <span id="overallBar"></span>
+        </div>
+
+        <div class="section-title" style="margin-top:22px">
+          <div><h2>Exam setup</h2><p>Set your own countdown start date</p></div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="startDate">Day 1 / plan start date</label>
+            <input type="date" id="startDate">
+          </div>
+          <div class="field">
+            <label for="examDate">Exam date (optional)</label>
+            <input type="date" id="examDate">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="mcqTarget">Daily MCQ target</label>
+            <input type="number" min="1" max="1000" id="mcqTarget" value="150">
+          </div>
+          <div class="field">
+            <label for="scoreTarget">Score target / 300</label>
+            <input type="number" min="1" max="300" id="scoreTarget" value="180">
+          </div>
+        </div>
+        <button class="primary" id="saveSettingsBtn" type="button">Save setup</button>
+        <p class="muted" style="font-size:12px;margin:10px 0 0">Changes save automatically in this browser.</p>
+      </div>
+
+      <div class="card">
+        <div class="section-title">
+          <div><h2>Score target</h2><p>Reference targets shown in your shared plan</p></div>
+        </div>
+        <div class="row">
+          <div style="background:#e6f1f2;border-radius:13px;padding:15px">
+            <div class="muted">PASS MARK</div>
+            <div style="font-size:30px;font-weight:850">150</div>
+            <div class="muted">out of 300 · 50%</div>
+          </div>
+          <div style="background:var(--teal);color:#fff;border-radius:13px;padding:15px">
+            <div style="opacity:.8">YOUR TARGET</div>
+            <div style="font-size:30px;font-weight:850" id="targetDisplay">180+</div>
+            <div style="opacity:.85">out of 300</div>
+          </div>
+        </div>
+        <p class="muted" style="font-size:12px">These figures reproduce the targets in your reference image. Verify the current official FMGE notice for exam rules and qualifying criteria.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="section-title">
+        <div><h2>Today's checklist</h2><p>Use this as a quick daily reset</p></div>
+        <button class="soft small" id="openDaily" type="button">Open daily log</button>
+      </div>
+      <div id="todaySummary" class="muted">No daily log added yet.</div>
+      <div class="mcq-today">
+        <span id="todayMcqLabel">0 / 150 MCQs today</span>
+        <span class="muted" id="todayHours"></span>
+      </div>
+      <div class="progress" id="todayProgress" role="progressbar" aria-label="Today's MCQ target" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <span id="todayBar"></span>
+      </div>
+    </div>
+  </section>
+
+  <section id="subjects" class="panel" role="tabpanel" aria-labelledby="tab-subjects">
+    <div class="section-title">
+      <div><h2>19 subjects · one source each</h2><p>Choose one main revision platform. Reference books are for doubts, not parallel reading.</p></div>
+      <span class="pill" id="subjectProgress">0/19 done</span>
+    </div>
+    <div class="notice" style="margin-bottom:14px">Main revision notes/videos: choose ONE platform (Marrow, PrepLadder or DAMS). Use the book listed for clarification and difficult concepts. Avoid switching sources repeatedly.</div>
+    <div class="card">
+      <div class="row" style="margin-bottom:12px">
+        <div class="field">
+          <label for="platform">Your one main platform</label>
+          <select id="platform">
+            <option value="">Choose platform</option>
+            <option>Marrow</option>
+            <option>PrepLadder</option>
+            <option>DAMS</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="platformOther">Other platform (if selected)</label>
+          <input id="platformOther" placeholder="Enter platform name">
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Done</th><th>Subject</th><th>Reference book / source</th><th>What I read / covered</th><th>What is left</th></tr></thead>
+          <tbody id="subjectRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="schedule" class="panel" role="tabpanel" aria-labelledby="tab-schedule">
+    <div class="section-title">
+      <div><h2>75-day timetable</h2><p>Follow the phases and adjust the daily subject split to your pace.</p></div>
+    </div>
+    <div class="card" id="phaseList"></div>
+    <div class="card" style="margin-top:16px">
+      <div class="section-title">
+        <div><h2>Day-by-day tracker</h2><p>Mark each day complete and add your focus for that day.</p></div>
+        <span class="pill" id="planProgress">0/75 days</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Done</th><th>Day</th><th>Calendar date</th><th>Plan / focus</th><th>Your notes</th></tr></thead>
+          <tbody id="dayRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="tests" class="panel" role="tabpanel" aria-labelledby="tab-tests">
+    <div class="section-title">
+      <div><h2>8 Grand Tests in 75 days</h2><p>Every GT: full exam simulation · 2 parts × 150 questions (as in your reference plan).</p></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">GT schedule</h3>
+      <div class="gt-grid" id="gtSchedule"></div>
+      <div class="muted" style="font-size:12px;margin-top:12px">Block 1: GT 1–4. Block 2: GT 5–8, closer together.</div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="section-title">
+        <div><h2>GT score &amp; analysis tracker</h2><p>Complete the analysis on the same day. Suggested analysis time: 3 hours.</p></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>GT</th><th>Day</th><th>Date</th><th>Score / 300</th><th>Analysis done</th><th>Weak areas / action</th></tr></thead>
+          <tbody id="gtRows"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="section-title">
+        <div><h2>GT subject-wise score analysis</h2><p>Enter the percentage for each subject after every GT. Compare the latest two tests and identify subjects needing extra revision.</p></div>
+        <span class="pill">50% benchmark</span>
+      </div>
+      <div class="notice">Rule: below 50% in 2 consecutive GTs = assign that subject 1 extra revision day. A missing score is not counted as a failed GT.</div>
+      <div class="field" style="max-width:260px">
+        <label for="subjectGTSelect">Choose GT to enter / review</label>
+        <select id="subjectGTSelect"></select>
+      </div>
+      <div class="analysis-summary">
+        <div><span class="muted" style="font-size:12px">OK</span><b id="gtOkCount">0</b><span class="muted" style="font-size:11px">Latest score ≥50%</span></div>
+        <div><span class="muted" style="font-size:12px">Watch</span><b id="gtWatchCount">0</b><span class="muted" style="font-size:11px">One score below 50%</span></div>
+        <div><span class="muted" style="font-size:12px">Extra revision</span><b id="gtReviseCount">0</b><span class="muted" style="font-size:11px">Two GTs in a row below 50%</span></div>
+      </div>
+      <div class="subject-analysis-grid" id="subjectGTGrid"></div>
+      <div class="section-title" style="margin-top:20px">
+        <div><h3 style="margin:0">Subject-wise action report</h3><p>Based on the latest two GTs with recorded scores.</p></div>
+      </div>
+      <div id="subjectGTReport"></div>
+    </div>
+  </section>
+
+  <section id="mistakes" class="panel" role="tabpanel" aria-labelledby="tab-mistakes">
+    <div class="section-title">
+      <div><h2>Wrong-question notebook</h2><p>Every incorrect question goes into one of these four buckets.</p></div>
+    </div>
+    <div class="card">
+      <div class="category"><div class="number">1</div><div><b>Not read</b><p>Never studied this topic.</p></div></div>
+      <div class="category"><div class="number">2</div><div><b>Read, still wrong</b><p>Studied it but got it wrong.</p></div></div>
+      <div class="category"><div class="number">3</div><div><b>Silly mistake</b><p>You knew it, but misread or slipped.</p></div></div>
+      <div class="category" style="border:0"><div class="number">4</div><div><b>Confused between 2 options</b><p>The second option confused you.</p></div></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="margin-top:0">Add a wrong question</h3>
+      <div class="row">
+        <div class="field">
+          <label for="wrongSubject">Subject</label>
+          <select id="wrongSubject"></select>
+        </div>
+        <div class="field">
+          <label for="wrongCategory">Category</label>
+          <select id="wrongCategory">
+            <option value="1">1 · Not read</option>
+            <option value="2">2 · Read, still wrong</option>
+            <option value="3">3 · Silly mistake</option>
+            <option value="4">4 · Confused between 2 options</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="wrongTopic">Topic / question reference</label>
+          <input id="wrongTopic" placeholder="e.g. Nephrotic syndrome">
+        </div>
+        <div class="field">
+          <label for="wrongDate">Date</label>
+          <input type="date" id="wrongDate">
+        </div>
+      </div>
+      <div class="field">
+        <label for="wrongNote">Correct concept / why I got it wrong / next action</label>
+        <textarea id="wrongNote" placeholder="Write the key learning point..."></textarea>
+      </div>
+      <button class="primary" id="addWrongBtn" type="button">Add to notebook</button>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="section-title">
+        <div><h2>Saved mistakes</h2><p id="wrongCount">0 entries</p></div>
+        <button class="soft small" id="clearWrongBtn" type="button">Clear all</button>
+      </div>
+      <div id="wrongList"></div>
+    </div>
+  </section>
+
+  <section id="daily" class="panel" role="tabpanel" aria-labelledby="tab-daily">
+    <div class="section-title">
+      <div><h2>Daily study log</h2><p>Track actual study time, coverage and MCQs — not just planned hours.</p></div>
+    </div>
+    <div class="grid two">
+      <div class="card">
+        <h3 style="margin-top:0">Log today's work</h3>
+        <div class="row">
+          <div class="field">
+            <label for="logDate">Date</label>
+            <input type="date" id="logDate">
+          </div>
+          <div class="field">
+            <label for="logSubject">Subject</label>
+            <select id="logSubject"></select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="studyHours">Study hours</label>
+            <input type="number" id="studyHours" min="0" max="24" value="0">
+          </div>
+          <div class="field">
+            <label for="studyMinutes">Minutes</label>
+            <input type="number" id="studyMinutes" min="0" max="59" value="0">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="mcqs">MCQs solved</label>
+            <input type="number" id="mcqs" min="0" value="0">
+          </div>
+          <div class="field">
+            <label for="correct">MCQs correct</label>
+            <input type="number" id="correct" min="0" value="0">
+          </div>
+        </div>
+        <div class="field">
+          <label for="readToday">What I read / completed</label>
+          <textarea id="readToday" placeholder="Topics, videos, notes..."></textarea>
+        </div>
+        <div class="field">
+          <label for="leftToday">What is left / revise next</label>
+          <textarea id="leftToday" placeholder="Pending topics and next action..."></textarea>
+        </div>
+        <div class="error" id="logError" role="alert"></div>
+        <button class="primary" id="saveLogBtn" type="button">Save daily log</button>
+      </div>
+
+      <div class="card timer">
+        <h3 style="margin-top:0">Focus timer</h3>
+        <p class="muted">Pomodoro, stopwatch or custom focus session</p>
+        <div class="row">
+          <div class="field">
+            <label for="timerMode">Mode</label>
+            <select id="timerMode">
+              <option value="pomodoro">Pomodoro · 25 min</option>
+              <option value="short">Short break · 5 min</option>
+              <option value="long">Long break · 15 min</option>
+              <option value="stopwatch">Stopwatch</option>
+              <option value="custom">Custom countdown</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="customMinutes">Custom minutes</label>
+            <input type="number" id="customMinutes" min="1" max="600" value="50">
+          </div>
+        </div>
+        <div class="clock" id="clock" role="timer" aria-live="off">25:00</div>
+        <div class="timer-controls">
+          <button class="primary" id="timerStart" type="button">Start</button>
+          <button class="soft" id="timerReset" type="button">Reset</button>
+        </div>
+        <p class="muted" id="timerStatus" aria-live="polite">Focus on one task until the timer ends.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="section-title">
+        <div><h2>Daily history</h2><p>Saved logs on this device</p></div>
+      </div>
+      <div id="logHistory"></div>
+    </div>
+  </section>
+
+  <footer class="muted" style="font-size:12px;text-align:center;margin-top:22px">
+    <div>Your progress is saved in this browser on this device. Export a backup regularly, especially before changing browsers or clearing website data.</div>
+    <div id="lastSaved" style="margin-top:6px">Not saved yet</div>
+  </footer>
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

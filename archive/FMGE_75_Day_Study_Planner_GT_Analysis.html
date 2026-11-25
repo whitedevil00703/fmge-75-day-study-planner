@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#087f83">
+<title>FMGE 75-Day Study Planner</title>
+<style>
+:root{--teal:#087f83;--teal2:#0b686d;--mint:#e5f3f2;--ink:#17252b;--muted:#68777d;--line:#e4eaec;--bg:#f4f7f8;--white:#fff;--orange:#b75b32;--shadow:0 8px 24px rgba(20,55,60,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:linear-gradient(120deg,#075f65,#0c898b);color:#fff;padding:25px max(20px,calc((100% - 1180px)/2)) 23px}
+.top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}.brand{font-size:13px;letter-spacing:.13em;font-weight:800;opacity:.8}.hero h1{font-size:clamp(25px,4vw,36px);margin:8px 0 4px}.hero p{margin:0;color:#d6eeee}.head-actions{display:flex;gap:8px;flex-wrap:wrap}
+button,.btn{border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:650;cursor:pointer}.primary{background:var(--teal);color:white}.light{background:#ffffff20;color:white;border:1px solid #ffffff55}.soft{background:var(--mint);color:var(--teal2)}.danger{background:#fff0eb;color:#a33e20}.small{padding:7px 10px;font-size:13px}
+main{max-width:1180px;margin:22px auto;padding:0 18px 60px}.tabs{display:flex;gap:8px;overflow:auto;padding:4px 0 14px}.tab{white-space:nowrap;background:#e8eff0;color:#506066}.tab.active{background:var(--teal);color:white}
+.panel{display:none}.panel.active{display:block}.grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px}.card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}.stat-label{color:var(--muted);font-size:13px}.stat-value{font-size:29px;font-weight:800;margin:4px 0}.stat-sub{color:var(--muted);font-size:12px}.section-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0 13px}.section-title h2{font-size:19px;margin:0}.section-title p{margin:3px 0 0;color:var(--muted);font-size:13px}
+.progress{height:9px;border-radius:20px;background:#e9eff0;overflow:hidden}.progress span{display:block;height:100%;background:var(--teal);border-radius:20px;width:0}
+.two{grid-template-columns:1.15fr .85fr}.three{grid-template-columns:repeat(3,1fr)}.field{display:flex;flex-direction:column;gap:5px;margin:9px 0}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input,.field select,.field textarea{width:100%;border:1px solid #dce5e7;border-radius:9px;padding:10px;background:#fff;color:var(--ink);font:inherit}.field textarea{min-height:75px;resize:vertical}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.muted{color:var(--muted)}.pill{display:inline-block;padding:4px 9px;background:var(--mint);color:var(--teal2);border-radius:30px;font-size:12px;font-weight:700}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:620px}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid var(--line);vertical-align:middle}th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}td{font-size:14px}td input[type=checkbox]{width:18px;height:18px;accent-color:var(--teal)}.subject-name{font-weight:750}.book{color:var(--muted)}.phase{border-left:4px solid var(--teal);padding:2px 0 2px 13px;margin:14px 0}.phase strong{display:block}.phase span{color:var(--muted);font-size:13px}.gt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.gt{background:#087f83;color:#fff;border-radius:13px;padding:13px;text-align:center}.gt b{display:block;font-size:18px}.gt span{font-size:12px;opacity:.85}.category{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}.number{width:28px;height:28px;border-radius:50%;background:var(--mint);color:var(--teal);display:grid;place-items:center;font-weight:800;flex:none}.category p{margin:2px 0 0;color:var(--muted);font-size:13px}.timer{text-align:center}.clock{font-size:44px;font-weight:800;letter-spacing:.04em;margin:15px 0}.timer-controls{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.list-item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.empty{padding:22px;text-align:center;color:var(--muted)}.notice{background:#fff8e9;border:1px solid #f2dfb8;padding:12px;border-radius:12px;color:#76521d;font-size:13px}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.two,.three{grid-template-columns:1fr}.gt-grid{grid-template-columns:repeat(2,1fr)}main{padding-left:12px;padding-right:12px}.card{padding:15px}}
+@media print{header{background:#fff;color:#111;padding:10px}.head-actions,.tabs,button{display:none!important}body{background:#fff}.panel{display:block!important;break-inside:avoid}.card{box-shadow:none;break-inside:avoid}main{max-width:none}}
+
+.subject-analysis-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.subject-analysis-card{border:1px solid var(--line);border-radius:12px;padding:13px;background:#fff}
+.subject-analysis-card h4{margin:0 0 9px;font-size:15px}
+.subject-score-row{display:grid;grid-template-columns:1fr 72px 72px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.subject-score-row:last-child{border-bottom:0}
+.subject-score-row input{width:100%;min-width:0;border:1px solid #dce5e7;border-radius:8px;padding:7px;font:inherit}
+.status-ok{color:var(--teal2);font-weight:750}.status-watch{color:#9a6a19;font-weight:750}.status-revise{color:#a33e20;font-weight:800}
+.analysis-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
+.analysis-summary>div{background:#f4f7f8;border-radius:10px;padding:12px}
+.analysis-summary b{display:block;font-size:21px}
+@media(max-width:760px){.subject-analysis-grid{grid-template-columns:1fr}.analysis-summary{grid-template-columns:repeat(3,1fr)}.subject-score-row{grid-template-columns:1fr 64px 64px}}
+
+</style>
+</head>
+<body>
+<header><div class="top"><div class="hero"><div class="brand">YOUR PERSONAL EXAM COMMAND CENTRE</div><h1>FMGE 75-Day Study Planner</h1><p>One subject · One source · Daily MCQs · 8 Grand Tests · Focused revision</p></div><div class="head-actions"><button class="light" onclick="window.print()">Print planner</button><button class="light" onclick="exportData()">Export backup</button><button class="light" onclick="document.getElementById('importFile').click()">Import backup</button><input id="importFile" type="file" accept="application/json" hidden onchange="importData(event)"></div></div></header>
+<main>
+<nav class="tabs" aria-label="Planner sections">
+<button class="tab active" data-tab="dashboard">Dashboard</button><button class="tab" data-tab="subjects">19 Subjects</button><button class="tab" data-tab="schedule">75-Day Plan</button><button class="tab" data-tab="tests">Grand Tests</button><button class="tab" data-tab="mistakes">Wrong Questions</button><button class="tab" data-tab="daily">Daily Log & Focus</button>
+</nav>
+<section id="dashboard" class="panel active">
+<div class="grid stats">
+<div class="card"><div class="stat-label">Days completed</div><div class="stat-value" id="daysDone">0/75</div><div class="stat-sub" id="dayNow">Set your start date below</div></div>
+<div class="card"><div class="stat-label">Subjects completed</div><div class="stat-value" id="subjectsDone">0/19</div><div class="stat-sub">Based on subject checklist</div></div>
+<div class="card"><div class="stat-label">MCQs solved</div><div class="stat-value" id="mcqTotal">0</div><div class="stat-sub">Total recorded in daily log</div></div>
+<div class="card"><div class="stat-label">Grand Tests</div><div class="stat-value" id="gtDone">0/8</div><div class="stat-sub">Record score and analysis</div></div>
+</div>
+<div class="grid two">
+<div class="card"><div class="section-title"><div><h2>Overall progress</h2><p>Your 75-day preparation snapshot</p></div><span class="pill" id="overallPct">0%</span></div><div class="progress"><span id="overallBar"></span></div>
+<div class="section-title" style="margin-top:22px"><div><h2>Exam setup</h2><p>Set your own countdown start date</p></div></div>
+<div class="row"><div class="field"><label>Day 1 / plan start date</label><input type="date" id="startDate"></div><div class="field"><label>Exam date (optional)</label><input type="date" id="examDate"></div></div>
+<div class="row"><div class="field"><label>Daily MCQ target</label><input type="number" min="1" id="mcqTarget" value="150"></div><div class="field"><label>Score target / 300</label><input type="number" min="1" max="300" id="scoreTarget" value="180"></div></div>
+<button class="primary" onclick="saveSettings()">Save setup</button>
+</div>
+<div class="card"><div class="section-title"><div><h2>Score target</h2><p>Reference targets shown in your shared plan</p></div></div><div class="row"><div style="background:#e6f1f2;border-radius:13px;padding:15px"><div class="muted">PASS MARK</div><div style="font-size:30px;font-weight:850">150</div><div class="muted">out of 300 · 50%</div></div><div style="background:#087f83;color:white;border-radius:13px;padding:15px"><div style="opacity:.8">YOUR TARGET</div><div style="font-size:30px;font-weight:850" id="targetDisplay">180+</div><div style="opacity:.85">out of 300</div></div></div><p class="muted" style="font-size:12px">These figures reproduce the targets in your reference image. Verify the current official FMGE notice for exam rules and qualifying criteria.</p></div>
+</div>
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h2>Today's checklist</h2><p>Use this as a quick daily reset</p></div><button class="soft small" onclick="document.querySelector('[data-tab=daily]').click()">Open daily log</button></div><div id="todaySummary" class="muted">No daily log added yet.</div></div>
+</section>
+
+<section id="subjects" class="panel">
+<div class="section-title"><div><h2>19 subjects · one source each</h2><p>Choose one main revision platform. Reference books are for doubts, not parallel reading.</p></div><span class="pill" id="subjectProgress">0/19 done</span></div>
+<div class="notice" style="margin-bottom:14px">Main revision notes/videos: choose ONE platform (Marrow, PrepLadder or DAMS). Use the book listed for clarification and difficult concepts. Avoid switching sources repeatedly.</div>
+<div class="card"><div class="row" style="margin-bottom:12px"><div class="field"><label>Your one main platform</label><select id="platform"><option value="">Choose platform</option><option>Marrow</option><option>PrepLadder</option><option>DAMS</option><option>Other</option></select></div><div class="field"><label>Other platform (if selected)</label><input id="platformOther" placeholder="Enter platform name"></div></div><div class="table-wrap"><table><thead><tr><th>Done</th><th>Subject</th><th>Reference book / source</th><th>What I read / covered</th><th>What is left</th></tr></thead><tbody id="subjectRows"></tbody></table></div></div>
+</section>
+
+<section id="schedule" class="panel">
+<div class="section-title"><div><h2>75-day timetable</h2><p>Follow the phases and adjust the daily subject split to your pace.</p></div></div>
+<div class="card">
+<div class="phase"><strong>Day 1–31 · Round 1</strong><span>All 19 subjects, high-yield first. Complete first-pass notes/videos and MCQs.</span></div>
+<div class="phase"><strong>Day 32–48 · Revision 1</strong><span>First revision + previous-year questions (PYQs).</span></div>
+<div class="phase"><strong>Day 49–63 · GT block 1</strong><span>GT 1 to 4 + same-day analysis + weak-subject revision.</span></div>
+<div class="phase"><strong>Day 64–73 · GT block 2</strong><span>GT 5 to 8 + same-day analysis.</span></div>
+<div class="phase" style="border-color:#b75b32"><strong>Day 74–75 · Final revision</strong><span>Final revision only. No new topics.</span></div>
+</div>
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h2>Day-by-day tracker</h2><p>Mark each day complete and add your focus for that day.</p></div><span class="pill" id="planProgress">0/75 days</span></div><div class="table-wrap"><table><thead><tr><th>Done</th><th>Day</th><th>Calendar date</th><th>Plan / focus</th><th>Your notes</th></tr></thead><tbody id="dayRows"></tbody></table></div></div>
+</section>
+
+<section id="tests" class="panel">
+<div class="section-title"><div><h2>8 Grand Tests in 75 days</h2><p>Every GT: full exam simulation · 2 parts × 150 questions (as in your reference plan).</p></div></div>
+<div class="card"><h3 style="margin-top:0">GT schedule</h3><div class="gt-grid" id="gtSchedule"></div><div class="muted" style="font-size:12px;margin-top:12px">Block 1: GT 1–4. Block 2: GT 5–8, closer together.</div></div>
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h2>GT score & analysis tracker</h2><p>Complete the analysis on the same day. Suggested analysis time: 3 hours.</p></div></div><div class="table-wrap"><table><thead><tr><th>GT</th><th>Day</th><th>Date</th><th>Score / 300</th><th>Analysis done</th><th>Weak areas / action</th></tr></thead><tbody id="gtRows"></tbody></table></div></div>
+<div class="card" style="margin-top:16px">
+ <div class="section-title"><div><h2>GT subject-wise score analysis</h2><p>Enter the percentage for each subject after every GT. Compare the latest two tests and identify subjects needing extra revision.</p></div><span class="pill">50% benchmark</span></div>
+ <div class="notice">Rule: below 50% in 2 consecutive GTs = assign that subject 1 extra revision day. A missing score is not counted as a failed GT.</div>
+ <div class="field" style="max-width:260px"><label>Choose GT to enter / review</label><select id="subjectGTSelect"></select></div>
+ <div class="analysis-summary">
+  <div><span class="muted" style="font-size:12px">OK</span><b id="gtOkCount">0</b><span class="muted" style="font-size:11px">Latest score ≥50%</span></div>
+  <div><span class="muted" style="font-size:12px">Watch</span><b id="gtWatchCount">0</b><span class="muted" style="font-size:11px">One score below 50%</span></div>
+  <div><span class="muted" style="font-size:12px">Extra revision</span><b id="gtReviseCount">0</b><span class="muted" style="font-size:11px">Two GTs in a row below 50%</span></div>
+ </div>
+ <div class="subject-analysis-grid" id="subjectGTGrid"></div>
+ <div class="section-title" style="margin-top:20px"><div><h3 style="margin:0">Subject-wise action report</h3><p>Based on the latest two GTs with recorded scores.</p></div></div>
+ <div id="subjectGTReport"></div>
+</div>
+</section>
+
+<section id="mistakes" class="panel">
+<div class="section-title"><div><h2>Wrong-question notebook</h2><p>Every incorrect question goes into one of these four buckets.</p></div></div>
+<div class="card">
+<div class="category"><div class="number">1</div><div><b>Not read</b><p>Never studied this topic.</p></div></div>
+<div class="category"><div class="number">2</div><div><b>Read, still wrong</b><p>Studied it but got it wrong.</p></div></div>
+<div class="category"><div class="number">3</div><div><b>Silly mistake</b><p>You knew it, but misread or slipped.</p></div></div>
+<div class="category" style="border:0"><div class="number">4</div><div><b>Confused between 2 options</b><p>The second option confused you.</p></div></div>
+</div>
+<div class="card" style="margin-top:16px"><h3 style="margin-top:0">Add a wrong question</h3><div class="row"><div class="field"><label>Subject</label><select id="wrongSubject"></select></div><div class="field"><label>Category</label><select id="wrongCategory"><option value="1">1 · Not read</option><option value="2">2 · Read, still wrong</option><option value="3">3 · Silly mistake</option><option value="4">4 · Confused between 2 options</option></select></div></div><div class="row"><div class="field"><label>Topic / question reference</label><input id="wrongTopic" placeholder="e.g. Nephrotic syndrome"></div><div class="field"><label>Date</label><input type="date" id="wrongDate"></div></div><div class="field"><label>Correct concept / why I got it wrong / next action</label><textarea id="wrongNote" placeholder="Write the key learning point..."></textarea></div><button class="primary" onclick="addWrong()">Add to notebook</button></div>
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h2>Saved mistakes</h2><p id="wrongCount">0 entries</p></div><button class="soft small" onclick="clearWrong()">Clear all</button></div><div id="wrongList"></div></div>
+</section>
+
+<section id="daily" class="panel">
+<div class="section-title"><div><h2>Daily study log</h2><p>Track actual study time, coverage and MCQs—not just planned hours.</p></div></div>
+<div class="grid two">
+<div class="card"><h3 style="margin-top:0">Log today's work</h3><div class="row"><div class="field"><label>Date</label><input type="date" id="logDate"></div><div class="field"><label>Subject</label><select id="logSubject"></select></div></div><div class="row"><div class="field"><label>Study hours</label><input type="number" id="studyHours" min="0" max="24" value="0"></div><div class="field"><label>Minutes</label><input type="number" id="studyMinutes" min="0" max="59" value="0"></div></div><div class="row"><div class="field"><label>MCQs solved</label><input type="number" id="mcqs" min="0" value="0"></div><div class="field"><label>MCQs correct</label><input type="number" id="correct" min="0" value="0"></div></div><div class="field"><label>What I read / completed</label><textarea id="readToday" placeholder="Topics, videos, notes..."></textarea></div><div class="field"><label>What is left / revise next</label><textarea id="leftToday" placeholder="Pending topics and next action..."></textarea></div><button class="primary" onclick="saveLog()">Save daily log</button></div>
+<div class="card timer"><h3 style="margin-top:0">Focus timer</h3><p class="muted">Pomodoro, stopwatch or custom focus session</p><div class="row"><div class="field"><label>Mode</label><select id="timerMode" onchange="setTimerMode()"><option value="pomodoro">Pomodoro · 25 min</option><option value="short">Short break · 5 min</option><option value="long">Long break · 15 min</option><option value="stopwatch">Stopwatch</option><option value="custom">Custom countdown</option></select></div><div class="field"><label>Custom minutes</label><input type="number" id="customMinutes" min="1" value="50"></div></div><div class="clock" id="clock">25:00</div><div class="timer-controls"><button class="primary" id="timerStart" onclick="toggleTimer()">Start</button><button class="soft" onclick="resetTimer()">Reset</button></div><p class="muted" id="timerStatus">Focus on one task until the timer ends.</p></div>
+</div>
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h2>Daily history</h2><p>Saved logs on this device</p></div></div><div id="logHistory"></div></div>
+</section>
+<footer class="muted" style="font-size:12px;text-align:center;margin-top:22px">Your progress is saved in this browser on this device. Export a backup regularly, especially before changing browsers or clearing website data.</footer>
+</main>
+<script>
+const subjects=[
+["Anatomy","BD Chaurasia"],["Physiology","Ganong"],["Biochemistry","Harper"],["Pathology","Harsh Mohan"],["Pharmacology","KD Tripathi"],["Microbiology","Ananthanarayan"],["PSM","Park"],["Forensic Medicine","KS Narayan Reddy"],["Medicine","Harrison (selected)"],["Surgery","SRB Manual"],["OBG","DC Dutta"],["Pediatrics","OP Ghai"],["ENT","Dhingra"],["Ophthalmology","AK Khurana"],["Orthopaedics","Maheshwari"],["Dermatology","Neena Khanna"],["Psychiatry","Niraj Ahuja"],["Radiology","Platform notes"],["Anaesthesia","Platform notes"]
+];
+const gtDays=[49,54,58,63,65,68,70,73];
+const plans=d=>d<=31?"Round 1 · All 19 subjects, high-yield first":d<=48?"Revision 1 · PYQs + revise notes":d<=63?"GT block 1 · Test, analyse, revise weak areas":d<=73?"GT block 2 · Test + same-day analysis":"Final revision only · No new topics";
+let data=JSON.parse(localStorage.getItem("fmgePlanner75")||"{}");
+data.subjects??={};data.days??={};data.gts??={};data.gtSubjectScores??={};data.wrongs??=[];data.logs??={};data.settings??={};
+const $=id=>document.getElementById(id);
+function persist(){localStorage.setItem("fmgePlanner75",JSON.stringify(data));renderAll()}
+function dateStr(date){return date.toISOString().slice(0,10)}
+function addDays(s,n){if(!s)return "";let d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return dateStr(d)}
+function today(){return dateStr(new Date())}
+function setupSelects(){["wrongSubject","logSubject"].forEach(id=>$(id).innerHTML=subjects.map(s=>`<option>${s[0]}</option>`).join(""))}
+function renderSubjects(){
+$("subjectRows").innerHTML=subjects.map(([s,b],i)=>{let x=data.subjects[s]||{};return `<tr><td><input type="checkbox" ${x.done?"checked":""} onchange="updateSubject(${i},'done',this.checked)"></td><td class="subject-name">${s}</td><td class="book">${b}</td><td><input aria-label="What I read in ${s}" value="${esc(x.read||"")}" placeholder="Covered..." onchange="updateSubject(${i},'read',this.value)"></td><td><input aria-label="What is left in ${s}" value="${esc(x.left||"")}" placeholder="Pending..." onchange="updateSubject(${i},'left',this.value)"></td></tr>`}).join("");
+let n=subjects.filter(s=>data.subjects[s[0]]?.done).length;$("subjectProgress").textContent=`${n}/19 done`;$("subjectsDone").textContent=`${n}/19`;
+}
+function updateSubject(i,k,v){let s=subjects[i][0];data.subjects[s]??={};data.subjects[s][k]=v;persist()}
+function renderDays(){let start=$("startDate").value;$("dayRows").innerHTML=Array.from({length:75},(_,i)=>{let d=i+1,x=data.days[d]||{};return `<tr><td><input type="checkbox" ${x.done?"checked":""} onchange="updateDay(${d},'done',this.checked)"></td><td><b>${d}</b></td><td>${start?addDays(start,i):"—"}</td><td>${plans(d)}</td><td><input value="${esc(x.note||"")}" placeholder="Your focus..." onchange="updateDay(${d},'note',this.value)"></td></tr>`}).join("");let n=Object.values(data.days).filter(x=>x.done).length;$("planProgress").textContent=`${n}/75 days`;$("daysDone").textContent=`${n}/75`;let dayNo=start?Math.floor((new Date(today()+"T12:00:00")-new Date(start+"T12:00:00"))/86400000)+1:0;$("dayNow").textContent=start?(dayNo<1?"Plan starts soon":dayNo>75?"75-day plan period ended":`Today is Day ${dayNo}`):"Set your start date below"}
+function updateDay(d,k,v){data.days[d]??={};data.days[d][k]=v;persist()}
+function renderGT(){let start=$("startDate").value;$("gtSchedule").innerHTML=gtDays.map((d,i)=>`<div class="gt"><b>Day ${d}</b><span>GT ${i+1}${start?" · "+addDays(start,d-1):""}</span></div>`).join("");$("gtRows").innerHTML=gtDays.map((d,i)=>{let x=data.gts[i]||{};return `<tr><td><b>GT ${i+1}</b></td><td>${d}</td><td>${start?addDays(start,d-1):"—"}</td><td><input type="number" min="0" max="300" placeholder="/300" value="${esc(x.score??"")}" onchange="updateGT(${i},'score',this.value)"></td><td><input type="checkbox" ${x.analysis?"checked":""} onchange="updateGT(${i},'analysis',this.checked)"></td><td><input value="${esc(x.action||"")}" placeholder="Weak areas / action" onchange="updateGT(${i},'action',this.value)"></td></tr>`}).join("");$("gtDone").textContent=`${Object.values(data.gts).filter(x=>x.score!==undefined&&x.score!=="").length}/8`}
+function updateGT(i,k,v){data.gts[i]??={};data.gts[i][k]=v;persist()}
+
+function setupSubjectGTSelect(){
+ $("subjectGTSelect").innerHTML=gtDays.map((d,i)=>`<option value="${i}">GT ${i+1} · Day ${d}</option>`).join("");
+ $("subjectGTSelect").value="0";
+ $("subjectGTSelect").addEventListener("change",renderSubjectGTAnalysis);
+}
+function getSubjectScore(gtIndex,subject){
+ let v=data.gtSubjectScores?.[gtIndex]?.[subject];
+ return v===undefined||v===""?null:Number(v);
+}
+function latestTwoScoredGTs(subject){
+ let found=[];
+ for(let i=gtDays.length-1;i>=0;i--){
+  let score=getSubjectScore(i,subject);
+  if(score!==null && Number.isFinite(score))found.push({index:i,score});
+  if(found.length===2)break;
+ }
+ return found;
+}
+function subjectStatus(subject){
+ let latest=latestTwoScoredGTs(subject);
+ if(!latest.length)return {kind:"none",label:"No data",latest};
+ if(latest.length===1)return latest[0].score<50?{kind:"watch",label:"Watch",latest}:{kind:"ok",label:"OK",latest};
+ if(latest[0].score<50 && latest[1].score<50)return {kind:"revise",label:"+1 day revision",latest};
+ if(latest[0].score<50 || latest[1].score<50)return {kind:"watch",label:"Watch",latest};
+ return {kind:"ok",label:"OK",latest};
+}
+function renderSubjectGTAnalysis(){
+ if(!$("subjectGTGrid"))return;
+ let selected=Number($("subjectGTSelect").value||0);
+ let scores=data.gtSubjectScores[selected]||{};
+ $("subjectGTGrid").innerHTML=subjects.map(([subject])=>{
+  let val=scores[subject]??"";
+  return `<div class="subject-analysis-card"><h4>${esc(subject)}</h4><div class="subject-score-row"><span class="muted" style="font-size:12px">GT ${selected+1} score</span><input aria-label="${esc(subject)} GT ${selected+1} percentage" type="number" min="0" max="100" step="0.1" placeholder="%" value="${esc(val)}" onchange="updateSubjectGTScore(${selected},'${esc(subject)}',this.value)"><span class="muted" style="font-size:11px">/ 100%</span></div></div>`;
+ }).join("");
+ let counts={ok:0,watch:0,revise:0};
+ let report=subjects.map(([subject])=>{
+  let st=subjectStatus(subject);if(st.kind!=="none")counts[st.kind]++;
+  let scoresText=st.latest.length?st.latest.slice().reverse().map(x=>`GT ${x.index+1}: ${x.score}%`).join(" · "):"No scores entered";
+  let action=st.kind==="revise"?"Give this subject 1 extra revision day.":st.kind==="watch"?"Monitor this subject and revise weak topics.":st.kind==="ok"?"Continue regular revision and MCQs.":"Enter scores to generate an action.";
+  return `<div class="list-item"><div><b>${esc(subject)}</b><div class="muted" style="font-size:12px">${scoresText}</div><div style="font-size:12px">${action}</div></div><span class="${st.kind==="revise"?"status-revise":st.kind==="watch"?"status-watch":"status-ok"}">${st.label}</span></div>`;
+ }).join("");
+ $("gtOkCount").textContent=counts.ok;
+ $("gtWatchCount").textContent=counts.watch;
+ $("gtReviseCount").textContent=counts.revise;
+ $("subjectGTReport").innerHTML=report;
+}
+function updateSubjectGTScore(gtIndex,subject,value){
+ data.gtSubjectScores??={};data.gtSubjectScores[gtIndex]??={};
+ if(value==="")delete data.gtSubjectScores[gtIndex][subject];
+ else{
+  let n=Number(value);
+  if(!Number.isFinite(n)||n<0||n>100){alert("Enter a percentage from 0 to 100.");renderSubjectGTAnalysis();return}
+  data.gtSubjectScores[gtIndex][subject]=n;
+ }
+ localStorage.setItem("fmgePlanner75",JSON.stringify(data));
+ renderSubjectGTAnalysis();
+}
+
+function addWrong(){let topic=$("wrongTopic").value.trim();if(!topic){alert("Add a topic or question reference.");return}data.wrongs.unshift({id:Date.now(),subject:$("wrongSubject").value,cat:$("wrongCategory").value,topic,date:$("wrongDate").value||today(),note:$("wrongNote").value.trim()});$("wrongTopic").value="";$("wrongNote").value="";persist()}
+function renderWrongs(){$("wrongCount").textContent=`${data.wrongs.length} entries`;$("wrongList").innerHTML=data.wrongs.length?data.wrongs.map(w=>`<div class="list-item"><div><b>${esc(w.topic)}</b> <span class="pill">${w.cat} · ${["","Not read","Read, still wrong","Silly mistake","Confused between 2 options"][w.cat]}</span><div class="muted" style="font-size:12px">${esc(w.subject)} · ${esc(w.date)}${w.note?" · "+esc(w.note):""}</div></div><button class="danger small" onclick="deleteWrong(${w.id})">Delete</button></div>`).join(""):'<div class="empty">No wrong questions logged yet.</div>'}
+function deleteWrong(id){data.wrongs=data.wrongs.filter(w=>w.id!==id);persist()}
+function clearWrong(){if(confirm("Delete all saved wrong-question entries?")){data.wrongs=[];persist()}}
+function saveLog(){let date=$("logDate").value||today(),subject=$("logSubject").value;data.logs[date]??=[];let entry={subject,h:+$("studyHours").value||0,m:+$("studyMinutes").value||0,mcq:+$("mcqs").value||0,correct:+$("correct").value||0,read:$("readToday").value,left:$("leftToday").value};let idx=data.logs[date].findIndex(x=>x.subject===subject);if(idx>=0)data.logs[date][idx]=entry;else data.logs[date].push(entry);persist();$("mcqs").value=0;$("correct").value=0;$("readToday").value="";$("leftToday").value=""}
+function renderLogs(){let dates=Object.keys(data.logs).sort().reverse();let all=Object.values(data.logs).flat();$("mcqTotal").textContent=all.reduce((a,x)=>a+x.mcq,0).toLocaleString();$("todaySummary").textContent=(data.logs[today()]||[]).length?`${data.logs[today()].length} subject log(s) saved today · ${data.logs[today()].reduce((a,x)=>a+x.mcq,0)} MCQs recorded.`:"No daily log added yet."; $("logHistory").innerHTML=dates.length?dates.map(d=>`<div class="list-item"><div><b>${d}</b><div class="muted" style="font-size:12px">${data.logs[d].map(x=>`${esc(x.subject)}: ${x.h}h ${x.m}m · ${x.mcq} MCQs`).join(" | ")}</div></div><button class="danger small" onclick="deleteLog('${d}')">Delete</button></div>`).join(""):'<div class="empty">No daily logs yet.</div>'}
+function deleteLog(d){if(confirm("Delete daily logs for "+d+"?")){delete data.logs[d];persist()}}
+function saveSettings(){data.settings={start:$("startDate").value,exam:$("examDate").value,target:$("mcqTarget").value,score:$("scoreTarget").value};persist()}
+function renderSettings(){let s=data.settings;$("startDate").value=s.start||"";$("examDate").value=s.exam||"";$("mcqTarget").value=s.target||150;$("scoreTarget").value=s.score||180;$("platform").value=s.platform||"";$("platformOther").value=s.platformOther||"";$("targetDisplay").textContent=(s.score||180)+"+"}
+function renderAll(){renderSubjects();renderDays();renderGT();renderSubjectGTAnalysis();renderWrongs();renderLogs();let n=subjects.filter(s=>data.subjects[s[0]]?.done).length,days=Object.values(data.days).filter(x=>x.done).length,gts=Object.values(data.gts).filter(x=>x.score!==undefined&&x.score!=="").length;let pct=Math.round((n/19+days/75+gts/8)/3*100);$("overallPct").textContent=pct+"%";$("overallBar").style.width=pct+"%";$("subjectsDone").textContent=n+"/19";$("daysDone").textContent=days+"/75";$("gtDone").textContent=gts+"/8";$("targetDisplay").textContent=(data.settings.score||180)+"+"}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab,.panel").forEach(x=>x.classList.remove("active"));b.classList.add("active");$(b.dataset.tab).classList.add("active")}));
+$("platform").addEventListener("change",()=>{data.settings.platform=$("platform").value;persist()});$("platformOther").addEventListener("change",()=>{data.settings.platformOther=$("platformOther").value;persist()});
+let timer=null,remaining=1500,elapsed=0,running=false,mode="pomodoro";
+function setTimerMode(){pauseTimer();mode=$("timerMode").value;remaining=mode==="pomodoro"?1500:mode==="short"?300:mode==="long"?900:mode==="custom"?(+$("customMinutes").value||50)*60:0;elapsed=0;showClock()}
+function showClock(){let v=mode==="stopwatch"?elapsed:remaining;$("clock").textContent=String(Math.floor(v/60)).padStart(2,"0")+":"+String(v%60).padStart(2,"0")}
+function toggleTimer(){if(running){pauseTimer();return}if(mode==="custom"&&remaining===0)remaining=(+$("customMinutes").value||50)*60;running=true;$("timerStart").textContent="Pause";timer=setInterval(()=>{if(mode==="stopwatch")elapsed++;else{remaining--;if(remaining<=0){remaining=0;pauseTimer();$("timerStatus").textContent="Session complete. Take a short break.";alert("Focus session complete!")} }showClock()},1000)}
+function pauseTimer(){clearInterval(timer);running=false;$("timerStart").textContent="Start"}
+function resetTimer(){pauseTimer();setTimerMode();$("timerStatus").textContent="Timer reset."}
+function exportData(){let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="fmge-75-day-planner-backup.json";a.click();URL.revokeObjectURL(a.href)}
+function importData(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x||typeof x!=="object")throw 0;data=x;data.subjects??={};data.days??={};data.gts??={};data.gtSubjectScores??={};data.wrongs??=[];data.logs??={};data.settings??={};localStorage.setItem("fmgePlanner75",JSON.stringify(data));renderSettings();renderAll();alert("Backup imported.")}catch(err){alert("Could not read this backup file.")}};r.readAsText(f)}
+setupSelects();setupSubjectGTSelect();$("logDate").value=today();$("wrongDate").value=today();renderSettings();renderAll();setTimerMode();
+</script>
+</body></html>
