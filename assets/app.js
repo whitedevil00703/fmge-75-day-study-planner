@@ -374,71 +374,217 @@ function computeStats() {
 
 /* ----------------------------- rendering --------------------------- */
 
+function setProgress(barId, progressId, percent) {
+  const safe = Math.max(0, Math.min(100, Math.round(percent)));
+  $(barId).style.width = safe + "%";
+  $(progressId).setAttribute("aria-valuenow", String(safe));
+}
+
+function dayNumber() {
+  if (!data.settings.start) return null;
+  const diff = daysBetween(data.settings.start, today());
+  return diff === null ? null : diff + 1;
+}
+
 function renderStats() {
   const stats = computeStats();
-  $("daysDone").textContent = stats.daysDone + "/75";
   $("subjectsDone").textContent = stats.subjectsDone + "/19";
-  $("mcqTotal").textContent = stats.mcq.toLocaleString();
-  $("mcqSub").textContent = stats.mcq > 0
-    ? stats.accuracy + "% accuracy · recorded in daily log"
-    : "Total recorded in daily log";
+  $("daysDone").textContent = stats.daysDone + "/75";
   $("gtDone").textContent = stats.gtsDone + "/8";
   $("subjectProgress").textContent = stats.subjectsDone + "/19 done";
   $("planProgress").textContent = stats.daysDone + "/75 days";
-  $("overallPct").textContent = stats.percent + "%";
-  $("overallBar").style.width = stats.percent + "%";
-  $("overallProgress").setAttribute("aria-valuenow", String(stats.percent));
-  $("targetDisplay").textContent = data.settings.score + "+";
+  setProgress("subjectsBar", "subjectsProgress", stats.subjectsDone / 19 * 100);
+  setProgress("daysBar", "daysProgress", stats.daysDone / 75 * 100);
+  setProgress("gtBar", "gtProgress", stats.gtsDone / 8 * 100);
 
-  let dayMessage = "Set your start date below";
-  if (data.settings.start) {
-    const diff = daysBetween(data.settings.start, today());
-    if (diff !== null) {
-      if (diff < 0) {
-        const remaining = Math.abs(diff);
-        dayMessage = "Plan starts in " + remaining + " day" + (remaining === 1 ? "" : "s");
-      } else if (diff + 1 > 75) {
-        dayMessage = "75-day plan period ended";
-      } else {
-        dayMessage = "Today is Day " + (diff + 1);
-      }
+  const day = dayNumber();
+  let dayLabel = "Not started";
+  if (day !== null) {
+    if (day < 1) {
+      const remaining = 1 - day;
+      dayLabel = "Starts in " + remaining + " day" + (remaining === 1 ? "" : "s");
+    } else if (day > 75) {
+      dayLabel = "Plan ended";
+    } else {
+      dayLabel = "Day " + day + " of 75";
     }
   }
-  $("dayNow").textContent = dayMessage;
+  $("dayNow").textContent = dayLabel;
 }
 
-function renderCountdown() {
-  const banner = $("countdownBanner");
-  const exam = data.settings.exam;
+function renderHero() {
   const start = data.settings.start;
+  const day = dayNumber();
+  let eyebrow = "PLAN NOT STARTED";
+  let focus = "Add your start date and exam date in Plan settings.";
+  let countdown = "No exam date set";
 
-  if (!exam) {
-    banner.innerHTML = "<b>No exam date set.</b> Add it in Exam setup to see your countdown.";
+  if (start && day !== null) {
+    if (day < 1) {
+      const remaining = 1 - day;
+      eyebrow = "PLAN STARTS IN " + remaining + " DAY" + (remaining === 1 ? "" : "S");
+      focus = planForDay(1);
+    } else if (day > 75) {
+      eyebrow = "75-DAY PLAN COMPLETE";
+      focus = "Final revision only — no new topics.";
+    } else {
+      eyebrow = "DAY " + day + " OF 75";
+      const note = data.days[day] && data.days[day].note;
+      focus = note || planForDay(day);
+    }
+  }
+
+  const exam = data.settings.exam;
+  if (exam) {
+    const daysLeft = daysBetween(today(), exam);
+    if (daysLeft > 0) {
+      countdown = daysLeft + " day" + (daysLeft === 1 ? "" : "s") + " to exam · " + formatDate(exam);
+    } else if (daysLeft === 0) {
+      countdown = "Exam is today";
+    } else {
+      countdown = "Exam date passed · update it in Plan settings";
+    }
+  }
+
+  $("heroEyebrow").textContent = eyebrow;
+  $("heroFocus").textContent = focus;
+  $("heroCountdown").textContent = countdown;
+  $("heroTarget").textContent = "Target " + data.settings.score + "+ / 300";
+}
+
+function nextGT() {
+  for (let i = 0; i < gtDays.length; i++) {
+    const score = data.gts[i] ? data.gts[i].score : "";
+    if (score !== "" && Number.isFinite(Number(score))) continue;
+
+    let sub = "Day " + gtDays[i];
+    if (data.settings.start) {
+      const date = addDays(data.settings.start, gtDays[i] - 1);
+      const diff = daysBetween(today(), date);
+      if (diff > 0) sub = "in " + diff + " day" + (diff === 1 ? "" : "s") + " · " + formatDate(date);
+      else if (diff === 0) sub = "today · " + formatDate(date);
+      else sub = "overdue by " + Math.abs(diff) + " day" + (Math.abs(diff) === 1 ? "" : "s");
+    }
+    return { label: "GT " + (i + 1), sub };
+  }
+  return { label: "All 8 done", sub: "Every GT scored" };
+}
+
+function renderKpis() {
+  const stats = computeStats();
+  const day = dayNumber();
+
+  if (!data.settings.start || day === null) {
+    $("kpiPace").textContent = "—";
+    $("kpiPaceSub").textContent = "Set your start date";
+  } else if (day < 1) {
+    $("kpiPace").textContent = "Not started";
+    $("kpiPaceSub").textContent = "Starts in " + (1 - day) + " day" + (1 - day === 1 ? "" : "s");
+  } else if (day > 75) {
+    $("kpiPace").textContent = "Plan ended";
+    $("kpiPaceSub").textContent = stats.daysDone + "/75 days marked done";
+  } else {
+    const expected = Math.min(75, day);
+    const diff = stats.daysDone - expected;
+    if (diff === 0) $("kpiPace").textContent = "On track";
+    else if (diff > 0) $("kpiPace").textContent = diff + " day" + (diff === 1 ? "" : "s") + " ahead";
+    else $("kpiPace").textContent = Math.abs(diff) + " day" + (Math.abs(diff) === 1 ? "" : "s") + " behind";
+    $("kpiPaceSub").textContent = "Day " + day + " of 75 · " + stats.daysDone + " marked done";
+  }
+
+  const todayEntries = data.logs[today()] || [];
+  const todayMcq = todayEntries.reduce((total, entry) => total + (entry.mcq || 0), 0);
+  const target = data.settings.target || 150;
+  $("kpiMcqToday").textContent = todayMcq.toLocaleString();
+  $("kpiMcqSub").textContent = "of " + target.toLocaleString() + " today" +
+    (stats.accuracy !== null ? " · " + stats.accuracy + "% accuracy" : "");
+
+  const next = nextGT();
+  $("kpiNextGt").textContent = next.label;
+  $("kpiNextGtSub").textContent = next.sub;
+
+  const weekStart = addDays(today(), -6);
+  const recent = data.wrongs.filter(entry => entry.date >= weekStart).length;
+  $("kpiMistakes").textContent = String(data.wrongs.length);
+  $("kpiMistakesSub").textContent = recent ? recent + " added this week" : "Wrong-question notebook";
+}
+
+function renderWeak() {
+  const rows = subjects.map(([name]) => {
+    const status = subjectStatus(name);
+    const latest = status.scores.length ? status.scores[0].score : null;
+    return { name, status, latest };
+  }).filter(row => row.status.kind === "revise" || row.status.kind === "watch")
+    .sort((a, b) => {
+      const rank = row => row.status.kind === "revise" ? 0 : 1;
+      if (rank(a) !== rank(b)) return rank(a) - rank(b);
+      return (a.latest === null ? 101 : a.latest) - (b.latest === null ? 101 : b.latest);
+    })
+    .slice(0, 3);
+
+  if (!rows.length) {
+    const hasScores = subjects.some(([name]) => scoredGTs(name).length > 0);
+    $("weakList").innerHTML = '<div class="empty">' +
+      (hasScores ? "No subjects below the 50% benchmark. Keep going." : "Enter GT subject scores to see weak areas.") +
+      "</div>";
     return;
   }
 
-  const daysLeft = daysBetween(today(), exam);
-  let main;
-  if (daysLeft > 0) {
-    main = "<b>" + daysLeft + " day" + (daysLeft === 1 ? "" : "s") + " to exam</b> · " + esc(formatDate(exam));
-  } else if (daysLeft === 0) {
-    main = "<b>Exam is today.</b> Revise only your weak spots and stay calm.";
-  } else {
-    main = "<b>Exam date has passed.</b> Update it in Exam setup.";
-  }
+  $("weakList").innerHTML = rows.map(row => (
+    '<div class="weak-item"><div>' +
+      "<b>" + esc(row.name) + "</b>" +
+      '<div class="muted" style="font-size:12px">' +
+        (row.latest === null ? "No score" : "Latest " + row.latest + "%") +
+      "</div>" +
+    "</div>" +
+    '<span class="' + (row.status.kind === "revise" ? "status-revise" : "status-watch") + '">' +
+      esc(row.status.label) +
+    "</span></div>"
+  )).join("");
+}
 
-  let note = "";
-  if (start) {
-    const planEnd = addDays(start, 74);
-    const gap = daysBetween(planEnd, exam);
-    if (gap !== null && gap < 0) {
-      note = " Your 75-day plan ends after the exam date.";
-    } else if (gap !== null && gap <= 3) {
-      note = " Your plan ends just before the exam — keep those last days light.";
+function renderHeatmap() {
+  const start = data.settings.start;
+  let doneCount = 0;
+
+  $("heatmap").innerHTML = Array.from({ length: 75 }, (_, index) => {
+    const day = index + 1;
+    const done = Boolean(data.days[day] && data.days[day].done);
+    const date = start ? addDays(start, index) : "";
+    let className = "heat-cell";
+    let state = done ? "done" : "not done";
+
+    if (done) {
+      className += " done";
+      doneCount++;
+    } else if (start) {
+      const diff = daysBetween(date, today());
+      if (diff > 0) {
+        className += " missed";
+        state = "missed";
+      } else if (diff === 0) {
+        className += " today";
+        state = "today";
+      }
+    } else {
+      className += " inactive";
     }
-  }
 
-  banner.innerHTML = main + (note ? '<span class="muted">' + note + "</span>" : "");
+    const label = "Day " + day + (date ? " · " + formatDate(date) : "") + " · " + state;
+    return '<span class="' + className + '" title="' + esc(label) + '" aria-label="' + esc(label) + '"></span>';
+  }).join("");
+
+  $("heatmap").setAttribute("aria-label", "75-day completion heatmap. " + doneCount + " days marked done.");
+}
+
+function renderPlanSummary() {
+  const settings = data.settings;
+  const parts = [];
+  if (settings.start) parts.push("Start " + formatDate(settings.start));
+  if (settings.exam) parts.push("Exam " + formatDate(settings.exam));
+  parts.push((settings.target || 150) + " MCQs/day");
+  parts.push("Target " + (settings.score || 180) + "/300");
+  $("planSummary").textContent = parts.join(" · ");
 }
 
 function renderToday() {
@@ -678,7 +824,11 @@ function renderAll() {
   renderWrongs();
   renderLogs();
   renderStats();
-  renderCountdown();
+  renderHero();
+  renderKpis();
+  renderWeak();
+  renderHeatmap();
+  renderPlanSummary();
   renderToday();
 }
 
@@ -696,7 +846,13 @@ function updateDay(day, key, value) {
   data.days[day] = data.days[day] || {};
   data.days[day][key] = value;
   save();
-  if (key === "done") renderStats();
+  if (key === "done") {
+    renderStats();
+    renderKpis();
+    renderHeatmap();
+  } else if (key === "note") {
+    renderHero();
+  }
 }
 
 function updateGT(index, key, value) {
@@ -713,7 +869,11 @@ function updateGT(index, key, value) {
   data.gts[index] = data.gts[index] || {};
   data.gts[index][key] = value;
   save();
-  if (key === "score" || key === "analysis") renderStats();
+  if (key === "score" || key === "analysis") {
+    renderStats();
+    renderKpis();
+    renderWeak();
+  }
 }
 
 function updateSubjectGTScore(gtIndex, subjectIndex, value) {
@@ -734,6 +894,7 @@ function updateSubjectGTScore(gtIndex, subjectIndex, value) {
 
   save();
   renderGTReport();
+  renderWeak();
 }
 
 function addWrong() {
@@ -757,6 +918,7 @@ function addWrong() {
   $("wrongNote").value = "";
   save();
   renderWrongs();
+  renderKpis();
   toast("Wrong question saved.", "success");
 }
 
@@ -764,6 +926,7 @@ function deleteWrong(id) {
   data.wrongs = data.wrongs.filter(entry => String(entry.id) !== String(id));
   save();
   renderWrongs();
+  renderKpis();
   toast("Entry deleted.");
 }
 
@@ -772,6 +935,7 @@ function clearWrong() {
   data.wrongs = [];
   save();
   renderWrongs();
+  renderKpis();
   toast("Notebook cleared.");
 }
 
@@ -820,6 +984,7 @@ function saveLog() {
   renderLogs();
   renderStats();
   renderToday();
+  renderKpis();
   toast("Daily log saved.", "success");
 }
 
@@ -830,6 +995,7 @@ function deleteLog(date) {
   renderLogs();
   renderStats();
   renderToday();
+  renderKpis();
   toast("Daily log deleted.");
 }
 
@@ -852,7 +1018,10 @@ function saveSettings(showToast) {
   renderSettings();
   renderDays();
   renderGT();
-  renderCountdown();
+  renderHero();
+  renderKpis();
+  renderHeatmap();
+  renderPlanSummary();
   renderToday();
   renderStats();
 
@@ -1161,6 +1330,32 @@ function setupGTSelect() {
   select.value = String(data.settings.lastGT || 0);
 }
 
+function openLog() {
+  activateTab("daily", true);
+  const field = $("studyHours");
+  if (field) {
+    field.focus();
+    if (field.select) field.select();
+  }
+}
+
+function openWrong() {
+  activateTab("mistakes", true);
+  const field = $("wrongTopic");
+  if (field) field.focus();
+}
+
+function startQuickFocus() {
+  activateTab("daily", true);
+  if (!timerState) return;
+  if (!timerState.running) {
+    $("timerMode").value = "pomodoro";
+    setTimerMode();
+    startTimer();
+  }
+  $("clock").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
 function bindEvents() {
   const tabs = Array.from(document.querySelectorAll(".tab"));
 
@@ -1184,7 +1379,14 @@ function bindEvents() {
   $("exportBtn").addEventListener("click", exportData);
   $("importBtn").addEventListener("click", () => $("importFile").click());
   $("importFile").addEventListener("change", importData);
-  $("openDaily").addEventListener("click", () => activateTab("daily", true));
+  $("openDaily").addEventListener("click", openLog);
+  $("heroLog").addEventListener("click", openLog);
+  $("todayLogBtn").addEventListener("click", openLog);
+  $("heroFocusBtn").addEventListener("click", startQuickFocus);
+  $("todayFocusBtn").addEventListener("click", startQuickFocus);
+  $("heroWrongBtn").addEventListener("click", openWrong);
+  $("openTests").addEventListener("click", () => activateTab("tests", true));
+  $("openDayPlan").addEventListener("click", () => activateTab("schedule", true));
   $("saveSettingsBtn").addEventListener("click", () => saveSettings(true));
   $("addWrongBtn").addEventListener("click", addWrong);
   $("clearWrongBtn").addEventListener("click", clearWrong);
@@ -1262,6 +1464,7 @@ function init() {
   renderAll();
   initTimer();
   restoreTab();
+  if (!data.settings.start) $("planDetails").open = true;
   $("logDate").value = today();
   $("wrongDate").value = today();
   updateSavedLabel();
