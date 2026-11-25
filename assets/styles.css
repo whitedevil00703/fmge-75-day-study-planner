@@ -48,9 +48,13 @@ button,.btn{
 
 main{max-width:1180px;margin:22px auto;padding:0 18px 60px}
 
-.tabs{display:flex;gap:8px;overflow:auto;padding:4px 0 14px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0 14px}
 .tab{white-space:nowrap;background:#e8eff0;color:#506066}
 .tab.active{background:var(--teal);color:#fff}
+
+@media(min-width:761px) and (max-width:980px){
+  .tab{padding:8px 10px;font-size:13px}
+}
 
 .panel{display:none}
 .panel.active{display:block}
@@ -290,6 +294,8 @@ td input[type=checkbox]{width:18px;height:18px;accent-color:var(--teal)}
   .subject-analysis-grid{grid-template-columns:1fr}
   .analysis-summary{grid-template-columns:repeat(3,1fr)}
   .subject-score-row{grid-template-columns:1fr 64px 64px}
+  .tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:6px;padding-bottom:12px}
+  .tab{padding:8px 6px;font-size:13px;line-height:1.25;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:normal}
   .hero-card{grid-template-columns:1fr;padding:18px}
   .hero-side{border-left:0;border-top:1px solid #ffffff33;padding-left:0;padding-top:14px;text-align:left}
   .heatmap{gap:4px}
